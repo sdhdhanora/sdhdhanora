@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>उपजिल्हा रुग्णालय धानोरा - Portal</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+    body { background: #eef2f5; margin: 0; padding: 0; }
+    
+    .hospital-header { background: #003366; color: white; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .hospital-header h1 { margin: 0; font-size: 20px; }
+    .hospital-header p { margin: 5px 0 0 0; font-size: 12px; opacity: 0.85; }
+    .user-bar { background: #002244; color: #ffcc00; padding: 8px 15px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+    
+    .container { padding: 15px; max-width: 650px; margin: 0 auto; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 14px; }
+    .form-group input { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+    
+    .btn { width: 100%; background: #0056b3; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; }
+    .btn-danger { background: #dc3545; width: auto; padding: 5px 12px; font-size: 12px; }
+    .btn-success { background: #28a745; }
+    .btn-send { background: #17a2b8; width: auto; padding: 8px 15px; font-size: 14px; margin-top: 5px; }
+    .btn-flag { background: #ff9800; color: black; padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; }
+    .btn-print { background: #6c757d; color: white; padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; }
+    .btn-whatsapp { background: #25d366; color: white; padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12px; }
+
+    /* Normal X-Ray Card */
+    .xray-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #0056b3; }
+    .xray-card img { width: 100%; border-radius: 8px; margin-top: 10px; }
+    .ai-badge { background: #e3f2fd; color: #0d47a1; padding: 10px; border-radius: 6px; font-weight: bold; margin-top: 10px; border-left: 4px solid #1e88e5; }
+    
+    /* Critical Highlighted Card (विशेष लक्ष) */
+    .critical-card { border: 3px solid #dc3545 !important; background: #fff5f5 !important; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important; }
+    .critical-tag { background: #dc3545; color: white; padding: 5px 10px; border-radius: 5px; font-weight: bold; font-size: 12px; display: inline-block; margin-bottom: 8px; }
+
+    /* Chat Section */
+    .chat-section { background: white; padding: 10px; border-radius: 8px; margin-top: 15px; border: 1px solid #ddd; }
+    .chat-box { max-height: 150px; overflow-y: auto; margin-bottom: 10px; }
+    .chat-msg { background: #f8f9fa; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; border-left: 3px solid #28a745; font-size: 13px; }
+    .chat-msg b { color: #003366; }
+    .chat-input-group { display: flex; gap: 5px; }
+    .chat-input-group input { flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 13px; }
+
+    .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 5px; }
+
+    .hidden { display: none; }
+
+    @media print {
+      body * { visibility: hidden; }
+      .print-area, .print-area * { visibility: visible; }
+      .print-area { position: absolute; left: 0; top: 0; width: 100%; }
+      .no-print { display: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hospital-header no-print">
+    <h1>🏥 शासकीय उपजिल्हा रुग्णालय, धानोरा</h1>
+    <p>डिजिटल एक्स-रे व टेलिकन्सल्टेशन पोर्टल</p>
+  </div>
+
+  <div id="user-bar" class="user-bar hidden no-print">
+    <span id="user-info">लॉगिन: डॉ.</span>
+    <button class="btn btn-danger" onclick="logout()">लॉग आऊट</button>
+  </div>
+
+  <div class="container">
+
+    <!-- लॉगिन स्क्रीन -->
+    <div id="login-section" class="card no-print">
+      <h2 style="text-align:center; color:#003366; margin-top:0;">स्टाफ / डॉक्टर लॉगिन</h2>
+      <div class="form-group">
+        <label>मोबाईल नंबर:</label>
+        <input type="tel" id="login-mobile" placeholder="१० अंकी मोबाईल नंबर टाका" maxlength="10">
+      </div>
+      <div class="form-group">
+        <label>पासवर्ड:</label>
+        <input type="password" id="login-password" placeholder="पासवर्ड टाका">
+      </div>
+      <button class="btn" onclick="login()">प्रवेश करा (Login)</button>
+    </div>
+
+    <!-- ऍडमिन पॅनेल -->
+    <div id="admin-section" class="card hidden no-print">
+      <h3 style="color:#003366; margin-top:0;">👨‍⚕️ नवीन डॉक्टर जोडा (Admin Panel)</h3>
+      <div class="form-group">
+        <input type="text" id="doc-name" placeholder="डॉक्टरांचे नाव (उदा. डॉ. पाटील)">
+      </div>
+      <div class="form-group">
+        <input type="tel" id="doc-mobile" placeholder="१० अंकी मोबाईल नंबर" maxlength="10">
+      </div>
+      <div class="form-group">
+        <input type="password" id="doc-password" placeholder="पासवर्ड">
+      </div>
+      <button class="btn btn-success" onclick="addDoctor()">डॉक्टर ॲड करा</button>
+    </div>
+
+    <!-- एक्स-रे फीड -->
+    <div id="xray-section" class="hidden">
+      <h3 style="color:#003366;" class="no-print">📋 प्राप्त झालेले एक्स-रे व वैद्यकीय चर्चा</h3>
+      <div id="xray-list">एक्स-रे लोड होत आहेत...</div>
+    </div>
+
+  </div>
+
+  <script>
+    const SUPABASE_URL = "इथे_तुमचा_SUPABASE_URL_टाका";
+    const SUPABASE_KEY = "इथे_तुमचा_SUPABASE_ANON_KEY_टाका";
+    const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    let currentUser = null;
+
+    window.onload = function() {
+      const savedUser = JSON.parse(localStorage.getItem('sdh_user'));
+      if (savedUser) {
+        currentUser = savedUser;
+        showPortal(savedUser);
+      }
+    };
+
+    async function login() {
+      const mobile = document.getElementById('login-mobile').value.trim();
+      const password = document.getElementById('login-password').value.trim();
+
+      if (!mobile || !password) { alert('कृपया मोबाईल नंबर आणि पासवर्ड टाका!'); return; }
+
+      const { data, error } = await _supabase
+        .from('hospital_staff')
+        .select('*')
+        .eq('mobile', mobile)
+        .eq('password', password)
+        .single();
+
+      if (error || !data) {
+        alert('मोबाईल नंबर किंवा पासवर्ड चुकीचा आहे!');
+      } else {
+        currentUser = data;
+        localStorage.setItem('sdh_user', JSON.stringify(data));
+        showPortal(data);
+      }
+    }
+
+    function showPortal(user) {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('user-bar').classList.remove('hidden');
+      document.getElementById('user-info').innerText = लॉगिन: ${user.name};
+      
+      document.getElementById('xray-section').classList.remove('hidden');
+      fetchXrays();
+      setInterval(fetchXrays, 5000);
+
+      if (user.role === 'admin') {
+        document.getElementById('admin-section').classList.remove('hidden');
+      }
+    }
+
+    async function fetchXrays() {
+      const { data: xrays } = await _supabase.from('xray_records').select('*').order('created_at', { ascending: false });
+      const { data: opinions } = await _supabase.from('xray_opinions').select('*').order('created_at', { ascending: true });
+
+      let html = '';
+      xrays.forEach(xray => {
+        const date = new Date(xray.created_at).toLocaleString('mr-IN');
+        const isCritical = xray.is_flagged;
+        
+        const xrayComments = opinions ? opinions.filter(op => op.xray_id === xray.id) : [];
+        let chatHtml = '';
+        xrayComments.forEach(c => {
+          chatHtml += <div class="chat-msg"><b>${c.doctor_name}:</b> ${c.opinion_text}</div>;
+        });
+
+        html += `
+          <div class="xray-card ${isCritical ? 'critical-card' : ''}" id="card-${xray.id}">
+            
+            <div class="action-bar no-print">
+              <div>
+                ${isCritical ? '<span class="critical-tag">🚨 विशेष लक्ष देण्याची गरज</span>' : ''}
+              </div>
+              <div>
+                <button class="btn-whatsapp" onclick="sendToPatient('${xray.patient_id}', '${xray.image_url}')">📲 रुग्णाला पाठवा</button>
+                <button class="btn-flag" onclick="toggleFlag(${xray.id}, ${isCritical})">${isCritical ? '🚩 अनफ्लॅग' : '🚩 विशेष लक्ष'}</button>
+                <button class="btn-print" onclick="printReport(${xray.id})">🖨️ प्रिंट</button>
+              </div>
+            </div>
+
+            <h4>📋 रुग्ण / एक्स-रे ID: ${xray.patient_id}</h4>
+            <img src="${xray.image_url}" alt="X-Ray">
+            <div class="ai-badge">🤖 ${xray.ai_hint}</div>
+            <p style="font-size:11px; color:#666; margin-top:5px;">तारीख व वेळ: ${date}</p>
+
+            <div class="chat-section">
+              <h5 style="margin:0 0 8px 0; color:#003366;">💬 डॉक्टरांचे अभिप्राय / टेलिकन्सल्टेशन चर्चा:</h5>
+              <div class="chat-box">
+                ${chatHtml || '<i style="color:#888; font-size:12px;">अजून कोणताही अभिप्राय दिलेला नाही.</i>'}
+              </div>
+              <div class="chat-input-group no-print">
+                <input type="text" id="input-${xray.id}" placeholder="तुमचे मत / टिप्पणी लिहा...">
+                <button class="btn btn-send" onclick="sendOpinion(${xray.id})">पाठवा</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      document.getElementById('xray-list').innerHTML = html || 'अजून X-Ray प्राप्त झालेले नाहीत.';
+    }
+
+    // 📲 रुग्णाला WhatsApp वर X-Ray सेंड करणे
+    function sendToPatient(patientId, imageUrl) {
+      let mobile = prompt("रुग्णाचा १० अंकी मोबाईल नंबर टाका:");
+      if (!mobile) return;
+      
+      mobile = mobile.trim();
+      if (mobile.length !== 10 || isNaN(mobile)) {
+        alert("कृपया अचूक १० अंकी मोबाईल नंबर टाका!");
+        return;
+      }
+
+      let message = 🏥 *शासकीय उपजिल्हा रुग्णालय, धानोरा*\n\nनमस्ते, आपला डिजिटल X-Ray तयार आहे.\n\n📋 *रुग्ण/X-Ray ID:* ${patientId}\n🖼️ *आपला X-Ray पाहण्यासाठी किंवा डाउनलोड करण्यासाठी खालील लिंकवर क्लिक करा:*\n${imageUrl}\n\nकाळजी घ्या व डॉक्टरांच्या सल्ल्यानुसार औषधोपचार घ्या!;
+      
+      let whatsappUrl = https://wa.me/91${mobile}?text=${encodeURIComponent(message)};
+      window.open(whatsappUrl, '_blank');
+    }
+
+    async function toggleFlag(xrayId, currentStatus) {
+      const { error } = await _supabase.from('xray_records').update({ is_flagged: !currentStatus }).eq('id', xrayId);
+      if (!error) fetchXrays();
+    }
+
+    function printReport(xrayId) {
+      const cardElement = document.getElementById(card-${xrayId});
+      cardElement.classList.add('print-area');
+      window.print();
+      cardElement.classList.remove('print-area');
+    }
+
+    async function sendOpinion(xrayId) {
+      const inputEl = document.getElementById(input-${xrayId});
+      const text = inputEl.value.trim();
+      if (!text) return;
+
+      const { error } = await _supabase.from('xray_opinions').insert([{
+        xray_id: xrayId,
+        doctor_name: currentUser.name,
+        opinion_text: text
+      }]);
+
+      if (!error) {
+        inputEl.value = '';
+        fetchXrays();
+      }
+    }
+
+    async function addDoctor() {
+      const name = document.getElementById('doc-name').value.trim();
+      const mobile = document.getElementById('doc-mobile').value.trim();
+      const password = document.getElementById('doc-password').value.trim();
+
+      if (!name || !mobile || !password) { alert('सर्व माहिती भरा!'); return; }
+
+      const { error } = await _supabase.from('hospital_staff').insert([{ name, mobile, password, role: 'doctor' }]);
+
+      if (error) alert('हा मोबाईल नंबर आधीच रजिस्टर आहे!');
+      else {
+        alert('डॉक्टर यशस्वीरीत्या ॲड झाले!');
+        document.getElementById('doc-name').value = '';
+        document.getElementById('doc-mobile').value = '';
+        document.getElementById('doc-password').value = '';
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('sdh_user');
+      location.reload();
+    }
+  </script>
+</body>
+</html>
