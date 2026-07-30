@@ -4,27 +4,27 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>उपजिल्हा रुग्णालय धानोरा - Hospital Portal</title>
-  <!-- Supabase CDN -->
+  <!-- Supabase JS CDN Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
     body { background: #eef2f5; margin: 0; padding: 0; }
     
-    /* Header & Navbar Styling */
+    /* Header & Navigation Bar */
     .hospital-header { background: #003366; color: white; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
     .hospital-header h1 { margin: 0; font-size: 20px; }
     .hospital-header p { margin: 5px 0 0 0; font-size: 12px; opacity: 0.85; }
     .user-bar { background: #002244; color: #ffcc00; padding: 8px 15px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
     
-    .container { padding: 15px; max-width: 700px; margin: 0 auto; }
+    .container { padding: 15px; max-width: 720px; margin: 0 auto; }
     .card { background: white; padding: 18px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
     
-    /* Form Elements & Inputs */
+    /* Inputs & Select Elements */
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 13px; }
     .form-group input, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
     
-    /* Buttons */
+    /* Buttons Styling */
     .btn { width: 100%; background: #0056b3; color: white; border: none; padding: 10px; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
     .btn-danger { background: #dc3545; color: white; border: none; padding: 6px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
     .btn-warning { background: #ff9800; color: black; border: none; padding: 6px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
@@ -32,7 +32,7 @@
     .btn-whatsapp { background: #25d366; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
     .btn-print { background: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
 
-    /* Filter Bar */
+    /* Search and Filter Box */
     .filter-card { background: #ffffff; border-left: 5px solid #0056b3; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
     .search-box { flex: 2; min-width: 180px; }
     .filter-dropdown { flex: 1; min-width: 140px; }
@@ -42,21 +42,22 @@
     .admin-tools h4 { margin: 0 0 10px 0; color: #856404; font-size: 14px; }
     .tool-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    /* X-Ray Cards */
+    /* X-Ray Feed Cards */
     .xray-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #0056b3; position: relative; }
     .xray-img-container { text-align: center; background: #000; border-radius: 8px; padding: 5px; margin-top: 10px; cursor: pointer; position: relative; }
     .xray-img-container img { max-width: 100%; max-height: 400px; border-radius: 5px; }
-    .zoom-hint { position: absolute; bottom: 8px; right: 12px; background: rgba(0,0,0,0.7); color: white; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+    .zoom-hint { position: absolute; bottom: 8px; right: 12px; background: rgba(0,0,0,0.75); color: #ffcc00; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
 
+    /* AI Findings Display */
     .ai-badge { background: #e3f2fd; color: #0d47a1; padding: 8px 12px; border-radius: 6px; font-weight: bold; margin-top: 10px; border-left: 4px solid #1e88e5; font-size: 13px; }
     
     /* Critical Highlight (विशेष लक्ष) */
     .critical-card { border: 3px solid #dc3545 !important; background: #fff5f5 !important; box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important; }
     .critical-tag { background: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 11px; display: inline-block; margin-bottom: 5px; }
 
-    /* Chat Section */
+    /* Tele-consultation Chat Box */
     .chat-section { background: #f8f9fa; padding: 10px; border-radius: 8px; margin-top: 12px; border: 1px solid #ddd; }
-    .chat-box { max-height: 120px; overflow-y: auto; margin-bottom: 8px; }
+    .chat-box { max-height: 130px; overflow-y: auto; margin-bottom: 8px; }
     .chat-msg { background: white; padding: 6px 10px; border-radius: 5px; margin-bottom: 4px; border-left: 3px solid #28a745; font-size: 12px; }
     .chat-input-group { display: flex; gap: 5px; }
     .chat-input-group input { flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; }
@@ -64,16 +65,16 @@
     .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 5px; }
     .hidden { display: none; }
 
-    /* 🩺 Interactive DICOM / Medical Image Viewer Modal */
+    /* 🩺 Interactive DICOM / HD Medical Image Viewer Modal */
     .viewer-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); text-align: center; color: white; }
-    .viewer-header { padding: 10px; background: #002244; display: flex; justify-content: space-between; align-items: center; }
-    .viewer-content-container { overflow: hidden; height: 70vh; display: flex; align-items: center; justify-content: center; background: #050505; }
-    .viewer-image { max-width: 90%; max-height: 68vh; transition: transform 0.1s ease; }
+    .viewer-header { padding: 10px 15px; background: #002244; display: flex; justify-content: space-between; align-items: center; }
+    .viewer-content-container { overflow: hidden; height: 72vh; display: flex; align-items: center; justify-content: center; background: #050505; position: relative; }
+    .viewer-image { max-width: 92%; max-height: 70vh; transition: transform 0.1s ease; }
     .viewer-controls { background: #111; padding: 10px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; align-items: center; border-top: 1px solid #333; }
     .viewer-btn { background: #0275d8; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
     .viewer-slider { width: 90px; vertical-align: middle; }
 
-    /* Print Styling */
+    /* Print Styling Format */
     @media print {
       body * { visibility: hidden; }
       .print-area, .print-area * { visibility: visible; }
@@ -82,15 +83,13 @@
     }
   </style>
 </head>
-<body>
-
-  <!-- Hospital Header -->
+<body><!-- Hospital Title Header -->
   <div class="hospital-header no-print">
     <h1>🏥 शासकीय उपजिल्हा रुग्णालय, धानोरा</h1>
-    <p>डिजिटल एक्स-रे, एआय निदान व टेलिकन्सल्टेशन पोर्टल</p>
+    <p>डिजिटल एक्स-रे, एआय मदत व टेलिकन्सल्टेशन पोर्टल</p>
   </div>
 
-  <!-- User Status Bar -->
+  <!-- Logged in User Bar -->
   <div id="user-bar" class="user-bar hidden no-print">
     <span id="user-info">लॉगिन: डॉ.</span>
     <button class="btn-danger" onclick="logout()">लॉग आऊट</button>
@@ -125,7 +124,7 @@
         <button class="btn-success" onclick="addDoctor()">डॉक्टर ॲड करा</button>
       </div>
 
-      <!-- बल्क डिलीट टूल्स -->
+      <!-- बल्क डिलीट क्लिनअप टूल्स -->
       <div class="admin-tools">
         <h4>🧹 क्लाऊड स्टोरेज क्लिअरन्स टूल्स (Bulk Cleanup):</h4>
         <div class="tool-buttons">
@@ -135,7 +134,7 @@
       </div>
     </div>
 
-    <!-- ३. सर्च आणि फिल्टर बार -->
+    <!-- ३. सर्च आणि डेट फिल्टर बार -->
     <div id="filter-section" class="card filter-card hidden no-print">
       <div class="search-box">
         <input type="text" id="search-input" placeholder="🔍 रुग्ण ID किंवा AI रिझल्ट शोधा..." onkeyup="filterXrays()">
@@ -149,26 +148,28 @@
           <option value="all">सर्व एक्स-रे (All Records)</option>
         </select>
       </div>
-    </div><!-- ४. मल्टी-डिलीट बार (Admin Multi-Delete) -->
+    </div>
+
+    <!-- ४. मल्टी-डिलीट बार (Admin Only Checkbox Delete) -->
     <div id="multi-delete-bar" class="card hidden no-print" style="padding:10px; background:#fff3cd; display:flex; justify-content:space-between; align-items:center;">
       <div>
         <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)">
-        <label for="select-all"><b>सर्व सेलेक्ट करा</b></label>
+        <label for="select-all"><b>सर्व सेलेक्ट करा (Select All)</b></label>
       </div>
       <button class="btn-danger" onclick="deleteSelectedXrays()">🗑️ सेलेक्ट केलेले मल्टी-डिलीट करा</button>
     </div>
 
-    <!-- ५. एक्स-रे व चॅट फीड -->
+    <!-- ५. एक्स-रे फीड आणि चॅट्स -->
     <div id="xray-section" class="hidden">
       <div id="xray-list">X-Ray लोड होत आहेत...</div>
     </div>
 
   </div>
 
-  <!-- 🩺 Interactive DICOM / Medical Image Viewer Modal -->
+  <!-- 🩺 Interactive HD Medical / DICOM Image Viewer Modal Overlay -->
   <div id="dicom-modal" class="viewer-modal">
     <div class="viewer-header">
-      <span style="font-weight: bold; font-size: 13px; color: #ffcc00;">🏥 SDH Dhanora - HD Medical Viewer</span>
+      <span style="font-weight: bold; font-size: 13px; color: #ffcc00;">🏥 SDH Dhanora - HD Medical DICOM Viewer</span>
       <button class="viewer-btn" style="background:#dc3545;" onclick="closeDicomViewer()">❌ बंद करा (Close)</button>
     </div>
 
@@ -176,7 +177,7 @@
       <img id="dicom-image" class="viewer-image" src="" alt="HD Medical X-Ray View">
     </div>
 
-    <!-- DICOM Toolbar Controls -->
+    <!-- Medical Radiologist Toolbar Controls -->
     <div class="viewer-controls">
       <button class="viewer-btn" onclick="adjustZoom(0.25)">🔍 झूम (+)</button>
       <button class="viewer-btn" onclick="adjustZoom(-0.25)">🔍 आऊट (-)</button>
@@ -195,15 +196,15 @@
   </div>
 
   <script>
-    // ⚠️ तुमच्या Supabase डिटेल्सने रिप्लेस करा
-    const SUPABASE_URL = "https://your-supabase-project-url.supabase.co";
-    const SUPABASE_KEY = "your-supabase-anon-key";
+    // Supabase Credentials (तुमचा रिअल Project ID आणि Key जोडलेला आहे)
+    const SUPABASE_URL = "https://icxqvchscgftkajsougv.supabase.co";
+    const SUPABASE_KEY = "इथे_स्क्रीनवरून_कॉपी_केलेली_PUBLISHABLE_KEY_पेस्ट_करा";
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     let currentUser = null;
     let rawXrayData = [];
 
-    // DICOM Viewer मधील व्हेरिएबल्स
+    // DICOM Viewer Zoom & Filter Variables
     let currentZoom = 1;
     let isInverted = false;
 
@@ -213,9 +214,7 @@
         currentUser = savedUser;
         showPortal(savedUser);
       }
-    };
-
-    // लॉगिन फंक्शन
+    };// १. लॉगिन फंक्शन
     async function login() {
       const mobile = document.getElementById('login-mobile').value.trim();
       const password = document.getElementById('login-password').value.trim();
@@ -238,7 +237,7 @@
       }
     }
 
-    // पोर्टल दाखवणे
+    // २. पोर्टल UI दाखवणे
     function showPortal(user) {
       document.getElementById('login-section').classList.add('hidden');
       document.getElementById('user-bar').classList.remove('hidden');
@@ -253,10 +252,10 @@
       }
 
       fetchXrays();
-      setInterval(fetchXrays, 5000); // ५ सेकंदांनी ऑटो-रिफ्रेश
+      setInterval(fetchXrays, 5000); // दर ५ सेकंदांनी ऑटो-रिफ्रेश
     }
 
-    // X-Ray डेटा आणि चॅट प्राप्त करणे
+    // ३. X-Ray डेटाबेस आणि चॅट डेटा लोड करणे
     async function fetchXrays() {
       const { data: xrays } = await _supabase.from('xray_records').select('*').order('created_at', { ascending: false });
       const { data: opinions } = await _supabase.from('xray_opinions').select('*').order('created_at', { ascending: true });
@@ -270,7 +269,7 @@
       }
     }
 
-    // सर्च आणि फिल्टर लॉजिक (२ महिने / ८ दिवस / सर्च)
+    // ४. सर्च आणि डेट फिल्टर लॉजिक (२ महिने / ८ दिवस / सर्च)
     function filterXrays() {
       const searchText = document.getElementById('search-input').value.toLowerCase();
       const filterValue = document.getElementById('date-filter').value;
@@ -286,7 +285,7 @@
         let matchDate = true;
         if (filterValue === '1') matchDate = diffDays <= 1;
         else if (filterValue === '8') matchDate = diffDays <= 8;
-        else if (filterValue === '60') matchDate = diffDays <= 60; // २ महिने
+        else if (filterValue === '60') matchDate = diffDays <= 60; // शेवटचे २ महिने
         else if (filterValue === 'critical') matchDate = xray.is_flagged === true;
 
         return matchText && matchDate;
@@ -295,7 +294,7 @@
       renderXrayCards(filtered);
     }
 
-    // स्क्रीनवर X-Ray कार्ड्स रेंडर करणे
+    // ५. X-Ray कार्ड्स रेंडर करणे
     function renderXrayCards(xrays) {
       let html = '';
       xrays.forEach(xray => {
@@ -324,17 +323,17 @@
 
             <h4>📋 रुग्ण / X-Ray ID: ${xray.patient_id}</h4>
             
-            <!-- X-Ray फोटोवर क्लिक केल्यावर HD DICOM Viewer उघडणे -->
+            <!-- X-Ray फोटोवर क्लिक केल्यावर HD DICOM Medical Viewer उघडणे -->
             <div class="xray-img-container" onclick="openDicomViewer('${xray.image_url}')">
               <img src="${xray.image_url}" alt="X-Ray">
-              <div class="zoom-hint">🔍 फुल-स्क्रीन HD व्ह्यूसाठी क्लिक करा</div>
+              <div class="zoom-hint">🔍 फुल-स्क्रीन HD मेडिकल व्ह्यूसाठी क्लिक करा</div>
             </div>
 
             <!-- AI Findings Badge -->
             <div class="ai-badge">🤖 ${xray.ai_hint}</div>
             <p style="font-size:11px; color:#666; margin-top:5px;">तारीख व वेळ: ${date}</p>
 
-            <!-- टेलिकन्सल्टेशन चॅट बॉक्स -->
+            <!-- टेलिकन्सल्टेशन चॅट सेक्शन -->
             <div class="chat-section">
               <h5 style="margin:0 0 6px 0; color:#003366;">💬 डॉक्टरांचे अभिप्राय / चर्चा:</h5>
               <div class="chat-box">${chatHtml || '<i style="color:#888; font-size:11px;">अजून कोणताही अभिप्राय दिलेला नाही.</i>'}</div>
@@ -349,7 +348,7 @@
       document.getElementById('xray-list').innerHTML = html || '<p style="text-align:center; color:#777;">कोणतेही X-Ray आढळले नाहीत.</p>';
     }
 
-    // 🩺 Interactive DICOM Medical Viewer Functions
+    // 🩺 ६. Interactive DICOM Medical Viewer Functions
     function openDicomViewer(imageUrl) {
       document.getElementById('dicom-image').src = imageUrl;
       document.getElementById('dicom-modal').style.display = 'block';
@@ -368,7 +367,9 @@
     function toggleInvert() {
       isInverted = !isInverted;
       applyFilters();
-    }function applyFilters() {
+    }
+
+    function applyFilters() {
       const img = document.getElementById('dicom-image');
       const brightness = document.getElementById('bright-slider').value;
       const contrast = document.getElementById('contrast-slider').value;
@@ -388,20 +389,20 @@
       applyFilters();
     }
 
-    // 📲 रुग्णाला WhatsApp वर X-Ray सेंड करणे
+    // 📲 ७. रुग्णाला WhatsApp वर X-Ray सेंड करणे
     function sendToPatient(patientId, imageUrl) {
       let mobile = prompt("रुग्णाचा १० अंकी मोबाईल नंबर टाका:");
       if (!mobile) return;
       mobile = mobile.trim();
       if (mobile.length !== 10 || isNaN(mobile)) { alert("अचूक १० अंकी मोबाईल नंबर टाका!"); return; }
 
-      let message = 🏥 *शासकीय उपजिल्हा रुग्णालय, धानोरा*\n\nनमस्ते, आपला डिजिटल X-Ray तयार आहे.\n📋 *रुग्ण ID:* ${patientId}\n🖼️ *X-Ray डाउनलोड करण्यासाठी क्लिक करा:*\n${imageUrl}\n\nकाळजी घ्या व डॉक्टरांच्या सल्ल्यानुसार औषधोपचार घ्या!;
+      let message = 🏥 *शासकीय उपजिल्हा रुग्णालय, धानोरा*\n\nनमस्ते, आपला डिजिटल X-Ray तयार आहे.\n📋 *रुग्ण ID:* ${patientId}\n🖼️ *X-Ray पाहण्यासाठी किंवा डाउनलोड करण्यासाठी क्लिक करा:*\n${imageUrl}\n\nकाळजी घ्या व डॉक्टरांच्या सल्ल्यानुसार औषधोपचार घ्या!;
       window.open(https://wa.me/91${mobile}?text=${encodeURIComponent(message)}, '_blank');
     }
 
-    // 🚨 ठराविक दिवसांपेक्षा जुने X-Ray डिलीट करणे
+    // 🚨 ८. ठराविक दिवसांपेक्षा जुने X-Ray ऑटो-डिलीट करणे (Admin Action)
     async function deleteOlderThan(days) {
-      if (!confirm(तुम्ही नक्की मागील ${days} दिवसांपेक्षा जुने सर्व X-Ray डिलीट करू इच्छिता?)) return;
+      if (!confirm(तुम्ही नक्की मागील ${days} दिवसांपेक्षा जुने सर्व X-Ray क्लाऊड वरून डिलीट करू इच्छिता?)) return;
 
       const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
       const { data: oldRecords } = await _supabase.from('xray_records').select('*').lt('created_at', cutoffDate);
@@ -421,7 +422,7 @@
       fetchXrays();
     }
 
-    // मल्टी-डिलीट लॉजिक
+    // ९. मल्टी-डिलीट Checkboxes Logic
     function toggleSelectAll(master) {
       document.querySelectorAll('.xray-select-box').forEach(cb => cb.checked = master.checked);
     }
@@ -445,13 +446,13 @@
       fetchXrays();
     }
 
-    // विशेष लक्ष (Red Flag)
+    // १०. विशेष लक्ष (Red Flag Toggle)
     async function toggleFlag(xrayId, currentStatus) {
       await _supabase.from('xray_records').update({ is_flagged: !currentStatus }).eq('id', xrayId);
       fetchXrays();
     }
 
-    // रिपोर्ट प्रिंट करणे
+    // ११. रिपोर्ट A4 फॉरमॅट प्रिंट करणे
     function printReport(xrayId) {
       const card = document.getElementById(card-${xrayId});
       card.classList.add('print-area');
@@ -459,7 +460,7 @@
       card.classList.remove('print-area');
     }
 
-    // डॉक्टरांचे मत / चॅट सेव्ह करणे
+    // १२. डॉक्टरांचे मत / चॅट सेव्ह करणे
     async function sendOpinion(xrayId) {
       const inputEl = document.getElementById(input-${xrayId});
       const text = inputEl.value.trim();
@@ -470,7 +471,7 @@
       fetchXrays();
     }
 
-    // नवीन डॉक्टर ॲड करणे (Admin Authority)
+    // १३. नवीन डॉक्टर ॲड करणे (Admin Authority)
     async function addDoctor() {
       const name = document.getElementById('doc-name').value.trim();
       const mobile = document.getElementById('doc-mobile').value.trim();
@@ -488,7 +489,7 @@
       }
     }
 
-    // लॉग आऊट
+    // १४. लॉग आऊट
     function logout() {
       localStorage.removeItem('sdh_user');
       location.reload();
