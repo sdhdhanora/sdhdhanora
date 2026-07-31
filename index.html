@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>उपजिल्हा रुग्णालय धानोरा - Digital Hospital Portal</title>
+  
+  <!-- PWA Manifest Dynamic Link -->
+  <link rel="manifest" id="pwa-manifest">
+  <meta name="theme-color" content="#003366">
+
   <!-- Supabase JS CDN Library -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -31,6 +36,8 @@
     .btn-success { background: #28a745; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; }
     .btn-whatsapp { background: #25d366; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
     .btn-print { background: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
+    .btn-download { background: #17a2b8; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-install { background: #ffc107; color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 6px; width: 100%; justify-content: center; }
 
     /* Search and Filter Box */
     .filter-card { background: #ffffff; border-left: 5px solid #0056b3; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -43,9 +50,9 @@
     .admin-tools h4 { margin: 0 0 10px 0; color: #856404; font-size: 14px; }
     .tool-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
     
-    .doctor-list-table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 12px; }
-    .doctor-list-table th, .doctor-list-table td { padding: 6px 8px; border: 1px solid #ddd; text-align: left; }
-    .doctor-list-table th { background: #003366; color: white; }
+    .doctor-list-table, .logs-table { width: 100%; margin-top: 10px; border-collapse: collapse; font-size: 12px; }
+    .doctor-list-table th, .doctor-list-table td, .logs-table th, .logs-table td { padding: 6px 8px; border: 1px solid #ddd; text-align: left; }
+    .doctor-list-table th, .logs-table th { background: #003366; color: white; }
 
     /* X-Ray Feed Cards */
     .xray-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border-left: 5px solid #0056b3; position: relative; }
@@ -102,6 +109,48 @@
   </div>
 
   <div class="container">
+    <!-- PWA Install Button -->
+    <button id="pwa-install-btn" class="btn-install hidden no-print" onclick="installPWA()">
+      📲 हे ॲप मोबाईल/डिसिएममध्ये इन्स्टॉल करा (Install PWA)
+    </button>
+
+    <!-- 🌐 पब्लिक पेशंट DICOM व्ह्यूअर सेक्शन (जेव्हा रुग्ण लिंक उघडेल) -->
+    <div id="public-patient-view" class="card hidden" style="border-left: 6px solid #28a745;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <h3 style="margin: 0; color: #003366;">📋 रुग्ण डिजिटल एक्स-रे आणि AI रिपोर्ट</h3>
+        <button class="btn-success" onclick="downloadCurrentPublicXray()">📥 एक्स-रे सेव्ह / डाऊनलोड करा</button>
+      </div>
+      
+      <div id="public-patient-info" class="patient-header-box">माहिती लोड होत आहे...</div>
+      
+      <!-- DICOM Viewer Box for Patient -->
+      <div class="xray-img-container" style="background: #000; padding: 10px; border-radius: 8px;">
+        <img id="public-dicom-img" class="viewer-image" src="" alt="Patient X-Ray" style="max-height: 400px; width: auto; max-width: 100%; transition: transform 0.1s ease;">
+      </div>
+
+      <!-- DICOM Controls for Patient -->
+      <div class="viewer-controls" style="margin-top: 10px; border-radius: 6px;">
+        <button class="viewer-btn" onclick="adjustPublicZoom(0.25)">🔍 झूम (+)</button>
+        <button class="viewer-btn" onclick="adjustPublicZoom(-0.25)">🔍 आऊट (-)</button>
+        
+        <label style="font-size: 11px;">ब्राईटनेस: 
+          <input type="range" id="pub-bright" class="viewer-slider" min="50" max="180" value="100" oninput="applyPublicFilters()">
+        </label>
+        
+        <label style="font-size: 11px;">काँट्रास्ट: 
+          <input type="range" id="pub-contrast" class="viewer-slider" min="50" max="220" value="100" oninput="applyPublicFilters()">
+        </label>
+
+        <button class="viewer-btn" style="background:#f0ad4e; color:black;" onclick="togglePublicInvert()">🔄 Invert</button>
+        <button class="viewer-btn" style="background:#17a2b8;" onclick="resetPublicView()">↺ Reset</button>
+      </div>
+
+      <div id="public-ai-report" class="ai-badge" style="margin-top: 15px;"></div>
+      <div style="text-align: center; margin-top: 15px;">
+        <a href="./" style="font-size: 13px; color: #0056b3; font-weight: bold; text-decoration: none;">🏠 मुख्य पोर्टलवर जा</a>
+      </div>
+    </div>
+
     <!-- १. लॉगिन विंडो -->
     <div id="login-section" class="card no-print">
       <h2 style="text-align:center; color:#003366; margin-top:0;">स्टाफ / डॉक्टर लॉगिन</h2>
@@ -116,9 +165,9 @@
       <button class="btn" onclick="login()">प्रवेश करा (Login)</button>
     </div>
 
-    <!-- २. ऍडमिन कंट्रोल पॅनेल (सुपर ॲडमिन पॉवर्स) -->
+    <!-- २. ॲडमिन कंट्रोल पॅनेल -->
     <div id="admin-section" class="card admin-card hidden no-print">
-      <h3 style="color:#003366; margin-top:0;">👑 ऍडमिन कन्ट्रोल व व्यवस्थापन पॅनेल</h3>
+      <h3 style="color:#003366; margin-top:0;">👑 ॲडमिन कन्ट्रोल व व्यवस्थापन पॅनेल</h3>
       
       <!-- नवीन डॉक्टर / स्टाफ जोडणे -->
       <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:12px;">
@@ -135,10 +184,16 @@
         <button class="btn-success" onclick="addDoctor()">स्टाफ ॲड करा</button>
       </div>
 
-      <!-- स्टाफ यादी व्यवस्थापन (Admin Only Power) -->
-      <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e0e0e0;">
+      <!-- स्टाफ यादी व्यवस्थापन -->
+      <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:12px;">
         <h4 style="margin:0 0 8px 0; color:#003366;">👨‍⚕️ नोंदणीकृत डॉक्टर / स्टाफ यादी:</h4>
         <div id="staff-list-container">स्टाफ यादी लोड होत आहे...</div>
+      </div>
+
+      <!-- डॉक्टर लॉगिन ॲक्टिव्हिटी लॉग सेक्शन -->
+      <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:12px;">
+        <h4 style="margin:0 0 8px 0; color:#003366;">📊 डॉक्टर लॉगिन ॲक्टिव्हिटी लॉग (Login Activity):</h4>
+        <div id="login-logs-container" style="max-height: 200px; overflow-y: auto;">लॉग लोड होत आहेत...</div>
       </div>
 
       <!-- बल्क डिलीट टूल्स -->
@@ -152,7 +207,7 @@
       </div>
     </div>
 
-    <!-- ३. सर्च आणि फिल्टर -->
+    <!-- ३. सर्च आणि तारखेवाईज फिल्टर -->
     <div id="filter-section" class="card filter-card hidden no-print">
       <div class="search-box">
         <input type="text" id="search-input" placeholder="🔍 रुग्ण नाव, ID किंवा AI निकाल शोधा..." onkeyup="filterXrays()">
@@ -162,9 +217,15 @@
           <option value="60">📅 शेवटचे २ महिने (Default)</option>
           <option value="1">आजचे X-Ray</option>
           <option value="8">मागील ८ दिवस</option>
+          <option value="custom">📅 विशिष्ट तारीख निवडा (Custom Date)</option>
           <option value="critical">🚨 फक्त विशेष लक्ष (Flagged)</option>
           <option value="all">सर्व एक्स-रे (All Records)</option>
         </select>
+      </div>
+      <!-- कस्टम तारीख निवडण्यासाठी इनपुट -->
+      <div id="custom-date-container" class="hidden" style="width: 100%; margin-top: 5px;">
+        <label style="font-size: 11px; font-weight: bold; color: #003366;">निश्चित तारीख निवडा:</label>
+        <input type="date" id="selected-custom-date" onchange="filterXrays()" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 100%;">
       </div>
     </div>
 
@@ -208,11 +269,12 @@
 
       <button class="viewer-btn" style="background:#f0ad4e; color:black;" onclick="toggleInvert()">🔄 Invert (Negative)</button>
       <button class="viewer-btn" style="background:#17a2b8;" onclick="resetDicomView()">↺ Reset</button>
+      <button class="viewer-btn" style="background:#28a745;" onclick="downloadModalImage()">📥 डाऊनलोड (Save)</button>
     </div>
   </div>
 
- <script>
-    // Supabase Configuration (Service Role Key for full admin controls)
+  <script>
+    // Supabase Configuration
     const SUPABASE_URL = "https://icxqvchscgftkajsougv.supabase.co";
     const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImljeHF2Y2hzY2dmdGthanNvdWd2Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NTQyODc1MCwiZXhwIjoyMTAxMDA0NzUwfQ.p0VyfZveyoOwql-O0rtj41XN6_Vfa9tOzKIBATTGLvM";
     const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -221,14 +283,145 @@
     let rawXrayData = [];
     let currentZoom = 1;
     let isInverted = false;
+    let deferredPrompt = null;
+    let autoRefreshInterval = null;
+
+    let currentPublicImgUrl = '';
+    let publicZoom = 1;
+    let publicInverted = false;
+
+    // PWA Setup & Manifest Generation
+    window.addEventListener('DOMContentLoaded', () => {
+      const manifestData = {
+        "name": "शासकीय उपजिल्हा रुग्णालय धानोरा",
+        "short_name": "SDH Dhanora",
+        "start_url": "./",
+        "display": "standalone",
+        "background_color": "#eef2f5",
+        "theme_color": "#003366",
+        "icons": [
+          {
+            "src": "https://cdn-icons-png.flaticon.com/512/3774/3774299.png",
+            "sizes": "512x512",
+            "type": "image/png"
+          }
+        ]
+      };
+      const stringManifest = JSON.stringify(manifestData);
+      const blob = new Blob([stringManifest], {type: 'application/json'});
+      document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+
+      // Register Service Worker
+      if ('serviceWorker' in navigator) {
+        const swCode = `
+          self.addEventListener('install', e => self.skipWaiting());
+          self.addEventListener('activate', e => self.clients.claim());
+          self.addEventListener('fetch', e => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
+        `;
+        const swBlob = new Blob([swCode], {type: 'application/javascript'});
+        navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(err => console.log('SW registration failed', err));
+      }
+    });
+
+    // PWA Install Prompt Handler
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      document.getElementById('pwa-install-btn').classList.remove('hidden');
+    });
+
+    async function installPWA() {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        document.getElementById('pwa-install-btn').classList.add('hidden');
+      }
+      deferredPrompt = null;
+    }
+
+    window.addEventListener('appinstalled', () => {
+      document.getElementById('pwa-install-btn').classList.add('hidden');
+    });
 
     window.onload = function() {
+      // Check if URL has shared parameters for Patient View
+      const urlParams = new URLSearchParams(window.location.search);
+      const sharedImg = urlParams.get('img');
+      if (sharedImg) {
+        loadPublicPatientViewer(sharedImg, urlParams.get('name'), urlParams.get('id'), urlParams.get('ai'));
+        return;
+      }
+
       const savedUser = JSON.parse(localStorage.getItem('sdh_user'));
       if (savedUser) {
         currentUser = savedUser;
         showPortal(savedUser);
       }
     };
+
+    function loadPublicPatientViewer(imgUrl, name, id, ai) {
+      currentPublicImgUrl = imgUrl;
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('public-patient-view').classList.remove('hidden');
+      
+      document.getElementById('public-patient-info').innerHTML = `
+        <h4 style="margin:0; color:#003366;">📋 रुग्ण: <strong>${decodeURIComponent(name || 'अज्ञात')}</strong> | ID: ${decodeURIComponent(id || 'N/A')}</h4>
+      `;
+      document.getElementById('public-ai-report').innerHTML = `🤖 <strong>AI रिपोर्ट / निष्कर्ष:</strong><br>${decodeURIComponent(ai || 'AI विश्लेषण उपलब्ध नाही.')}`;
+      document.getElementById('public-dicom-img').src = imgUrl;
+      resetPublicView();
+    }
+
+    function adjustPublicZoom(amt) {
+      publicZoom = Math.max(0.5, Math.min(3.5, publicZoom + amt));
+      applyPublicFilters();
+    }
+
+    function togglePublicInvert() {
+      publicInverted = !publicInverted;
+      applyPublicFilters();
+    }
+
+    function applyPublicFilters() {
+      const img = document.getElementById('public-dicom-img');
+      const b = document.getElementById('pub-bright').value;
+      const c = document.getElementById('pub-contrast').value;
+      let f = `brightness(${b}%) contrast(${c}%)`;
+      if (publicInverted) f += ` invert(100%)`;
+      img.style.filter = f;
+      img.style.transform = `scale(${publicZoom})`;
+    }
+
+    function resetPublicView() {
+      publicZoom = 1;
+      publicInverted = false;
+      document.getElementById('pub-bright').value = 100;
+      document.getElementById('pub-contrast').value = 100;
+      applyPublicFilters();
+    }
+
+    async function downloadCurrentPublicXray() {
+      if (!currentPublicImgUrl) return;
+      await downloadImageFile(currentPublicImgUrl, 'SDH_Dhanora_XRay.jpg');
+    }
+
+    async function downloadImageFile(url, filename) {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(blobUrl);
+      } catch (err) {
+        window.open(url, '_blank');
+      }
+    }
 
     async function login() {
       const mobile = document.getElementById('login-mobile').value.trim();
@@ -248,6 +441,15 @@
       } else {
         currentUser = data;
         localStorage.setItem('sdh_user', JSON.stringify(data));
+        
+        // Log activity to database
+        await _supabase.from('login_logs').insert([{
+          doctor_name: data.name,
+          mobile: data.mobile,
+          role: data.role,
+          login_time: new Date().toISOString()
+        }]);
+
         showPortal(data);
       }
     }
@@ -264,10 +466,14 @@
         document.getElementById('admin-section').classList.remove('hidden');
         document.getElementById('multi-delete-bar').classList.remove('hidden');
         fetchStaffList();
+        fetchLoginLogs();
       }
 
       fetchXrays();
-      setInterval(fetchXrays, 6000);
+      
+      // Auto-refresh every 5 seconds if active
+      if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+      autoRefreshInterval = setInterval(fetchXrays, 5000);
     }
 
     async function fetchXrays() {
@@ -286,6 +492,15 @@
     function filterXrays() {
       const searchText = document.getElementById('search-input').value.toLowerCase();
       const filterValue = document.getElementById('date-filter').value;
+      const customDateVal = document.getElementById('selected-custom-date').value;
+      const customDateContainer = document.getElementById('custom-date-container');
+
+      if (filterValue === 'custom') {
+        customDateContainer.classList.remove('hidden');
+      } else {
+        customDateContainer.classList.add('hidden');
+      }
+
       const now = new Date();
 
       let filtered = rawXrayData.filter(xray => {
@@ -299,10 +514,19 @@
         const diffDays = (now - xrayDate) / (1000 * 60 * 60 * 24);
 
         let matchDate = true;
-        if (filterValue === '1') matchDate = diffDays <= 1;
-        else if (filterValue === '8') matchDate = diffDays <= 8;
-        else if (filterValue === '60') matchDate = diffDays <= 60;
-        else if (filterValue === 'critical') matchDate = xray.is_flagged === true;
+        if (filterValue === '1') {
+          matchDate = diffDays <= 1;
+        } else if (filterValue === '8') {
+          matchDate = diffDays <= 8;
+        } else if (filterValue === '60') {
+          matchDate = diffDays <= 60;
+        } else if (filterValue === 'custom' && customDateVal) {
+          const selectedStr = new Date(customDateVal).toDateString();
+          const xrayStr = xrayDate.toDateString();
+          matchDate = (selectedStr === xrayStr);
+        } else if (filterValue === 'critical') {
+          matchDate = xray.is_flagged === true;
+        }
 
         return matchText && matchDate;
       });
@@ -316,7 +540,6 @@
         const date = new Date(xray.created_at).toLocaleString('mr-IN');
         const isCritical = xray.is_flagged;
         
-        // रुग्णाचे नाव व AI रिपोर्ट तपासणे (null ऐवजी अचूक मजकूर)
         const patientName = (xray.patient_name && xray.patient_name !== 'null') ? xray.patient_name : "नाव उपलब्ध नाही";
         const aiReport = (xray.ai_report && xray.ai_report !== 'null') ? xray.ai_report : (xray.ai_hint || "AI विश्लेषण उपलब्ध नाही / प्रलंबित.");
 
@@ -335,7 +558,8 @@
                 ${isCritical ? '<span class="critical-tag">🚨 विशेष लक्ष देण्याची गरज</span>' : ''}
               </div>
               <div>
-                <button class="btn-whatsapp" onclick="sendToPatient('${patientName}', '${xray.patient_id}', '${xray.image_url}')">📲 रुग्णाला पाठवा</button>
+                <button class="btn-whatsapp" onclick="sendToPatient('${patientName}', '${xray.patient_id}', '${xray.image_url}', '${encodeURIComponent(aiReport)}')">📲 रुग्णाला पाठवा</button>
+                <button class="btn-download" onclick="downloadImageFile('${xray.image_url}', 'XRay_${patientName.replace(/\s+/g, '_')}.jpg')">📥 डाऊनलोड</button>
                 <button class="btn-warning" onclick="toggleFlag(${xray.id}, ${isCritical})">${isCritical ? '🚩 अनफ्लॅग' : '🚩 विशेष लक्ष'}</button>
                 <button class="btn-print" onclick="printReport(${xray.id})">🖨️ प्रिंट</button>
                 ${isAdmin ? `<button class="btn-danger" style="margin-left:4px;" onclick="deleteSingleXray('${xray.id}', '${xray.image_url}')">🗑️ डिलीट</button>` : ''}
@@ -368,7 +592,7 @@
       document.getElementById('xray-list').innerHTML = html || '<p style="text-align:center; color:#777; padding:20px;">एकही X-Ray आढळला नाही.</p>';
     }
 
-   /* DICOM Viewer Controls */
+    /* DICOM Viewer Controls */
     function openDicomViewer(imageUrl) {
       document.getElementById('dicom-image').src = imageUrl;
       document.getElementById('dicom-modal').style.display = 'block';
@@ -409,18 +633,25 @@
       applyFilters();
     }
 
+    function downloadModalImage() {
+      const imgUrl = document.getElementById('dicom-image').src;
+      downloadImageFile(imgUrl, 'SDH_Dhanora_XRay.jpg');
+    }
+
     /* Action Handlers */
-    function sendToPatient(patientName, patientId, imageUrl) {
+    function sendToPatient(patientName, patientId, imageUrl, encodedAiReport) {
       let mobile = prompt("रुग्णाचा १० अंकी मोबाईल नंबर टाका:");
       if (!mobile) return;
       mobile = mobile.trim();
       if (mobile.length !== 10 || isNaN(mobile)) { alert("अचूक १० अंकी मोबाईल नंबर टाका!"); return; }
 
-      let message = `🏥 *शासकीय उपजिल्हा रुग्णालय, धानोरा*\n\nनमस्ते *${patientName}*,\nआपला डिजिटल X-Ray रिपोर्ट तयार आहे.\n📋 *रुग्ण ID:* ${patientId}\n🖼️ *X-Ray पाहण्यासाठी खालील लिंकवर क्लिक करा:*\n${imageUrl}\n\nकाळजी घ्या व डॉक्टरांच्या सल्ल्यानुसार औषधोपचार घ्या!`;
+      const baseUrl = window.location.href.split('?')[0];
+      const patientLink = `${baseUrl}?img=${encodeURIComponent(imageUrl)}&name=${encodeURIComponent(patientName)}&id=${encodeURIComponent(patientId)}&ai=${encodedAiReport}`;
+
+      let message = `🏥 *शासकीय उपजिल्हा रुग्णालय, धानोरा*\n\nनमस्ते *${patientName}*,\nआपला डिजिटल X-Ray रिपोर्ट तयार आहे.\n📋 *रुग्ण ID:* ${patientId}\n\n🔗 *खालील लिंकवर क्लिक करून HD DICOM व्ह्यूअरमध्ये एक्स-रे पहा व डाऊनलोड करा:*\n${patientLink}\n\nकाळजी घ्या व डॉक्टरांच्या सल्ल्यानुसार औषधोपचार घ्या!`;
       window.open(`https://wa.me/91${mobile}?text=${encodeURIComponent(message)}`, '_blank');
     }
 
-    /* ॲडमिन सोलो डिलीट पॉवर */
     async function deleteSingleXray(id, imageUrl) {
       if (!confirm("तुम्ही नक्की हा X-Ray क्लाऊडवरून कायमचा डिलीट करू इच्छिता?")) return;
 
@@ -439,7 +670,6 @@
       }
     }
 
-    /* ॲडमिन बल्क क्लिअरन्स टूल्स */
     async function deleteOlderThan(days) {
       if (!confirm(`तुम्ही नक्की मागील ${days} दिवसांपेक्षा जुने सर्व X-Ray क्लाऊड वरून डिलीट करू इच्छिता?`)) return;
 
@@ -575,6 +805,44 @@
       await _supabase.from('hospital_staff').delete().eq('id', id);
       alert("स्टाफ मेंबर काढून टाकला आहे.");
       fetchStaffList();
+    }
+
+    /* डॉक्टर लॉगिन ॲक्टिव्हिटी लॉग फेट्च करणे */
+    async function fetchLoginLogs() {
+      const { data: logs, error } = await _supabase.from('login_logs').select('*').order('login_time', { ascending: false }).limit(25);
+      
+      if (error || !logs || logs.length === 0) {
+        document.getElementById('login-logs-container').innerHTML = '<p style="font-size:12px; color:#666;">कोणतीही लॉगिन ॲक्टिव्हिटी उपलब्ध नाही.</p>';
+        return;
+      }
+
+      let logTableHtml = `
+        <table class="logs-table">
+          <thead>
+            <tr>
+              <th>डॉक्टरचे नाव</th>
+              <th>मोबाईल</th>
+              <th>रोल</th>
+              <th>लॉगिन वेळ</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      logs.forEach(l => {
+        const timeFormatted = new Date(l.login_time).toLocaleString('mr-IN');
+        logTableHtml += `
+          <tr>
+            <td>${l.doctor_name}</td>
+            <td>${l.mobile}</td>
+            <td>${l.role.toUpperCase()}</td>
+            <td>${timeFormatted}</td>
+          </tr>
+        `;
+      });
+
+      logTableHtml += '</tbody></table>';
+      document.getElementById('login-logs-container').innerHTML = logTableHtml;
     }
 
     function logout() {
