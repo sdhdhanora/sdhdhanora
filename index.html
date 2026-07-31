@@ -37,7 +37,7 @@
     .btn-whatsapp { background: #25d366; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
     .btn-print { background: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
     .btn-download { background: #17a2b8; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
-    .btn-install { background: #ffc107; color: #000; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 13px; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 6px; width: 100%; justify-content: center; }
+    .btn-install { background: #ffc107; color: #000; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 6px; width: 100%; justify-content: center; }
 
     /* Search and Filter Box */
     .filter-card { background: #ffffff; border-left: 5px solid #0056b3; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
@@ -78,7 +78,7 @@
     .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 5px; }
     .hidden { display: none !important; }
 
-    /* Interactive DICOM Viewer Modal */
+    /* Interactive DICOM Viewer Modal (Doctors Only) */
     .viewer-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); text-align: center; color: white; }
     .viewer-header { padding: 10px 15px; background: #002244; display: flex; justify-content: space-between; align-items: center; }
     .viewer-content-container { overflow: hidden; height: 72vh; display: flex; align-items: center; justify-content: center; background: #050505; position: relative; }
@@ -109,43 +109,28 @@
   </div>
 
   <div class="container">
-    <!-- PWA Install Button -->
+    <!-- Clean App Install Button -->
     <button id="pwa-install-btn" class="btn-install hidden no-print" onclick="installPWA()">
-      📲 हे ॲप मोबाईल/डिसिएममध्ये इन्स्टॉल करा (Install PWA)
+      📲 ॲप इन्स्टॉल करा
     </button>
 
-    <!-- 🌐 पब्लिक पेशंट DICOM व्ह्यूअर सेक्शन (जेव्हा रुग्ण लिंक उघडेल) -->
-    <div id="public-patient-view" class="card hidden" style="border-left: 6px solid #28a745;">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-        <h3 style="margin: 0; color: #003366;">📋 रुग्ण डिजिटल एक्स-रे आणि AI रिपोर्ट</h3>
-        <button class="btn-success" onclick="downloadCurrentPublicXray()">📥 एक्स-रे सेव्ह / डाऊनलोड करा</button>
-      </div>
+    <!-- 🌐 रुग्णासाठी अगदी सोपे डायरेक्ट गॅलरी डाऊनलोड पेज -->
+    <div id="public-patient-view" class="card hidden" style="border-left: 6px solid #28a745; text-align: center;">
+      <h3 style="margin-top: 0; color: #003366;">📋 रुग्ण डिजिटल एक्स-रे रिपोर्ट</h3>
       
-      <div id="public-patient-info" class="patient-header-box">माहिती लोड होत आहे...</div>
+      <div id="public-patient-info" class="patient-header-box" style="text-align: left;">माहिती लोड होत आहे...</div>
       
-      <!-- DICOM Viewer Box for Patient -->
-      <div class="xray-img-container" style="background: #000; padding: 10px; border-radius: 8px;">
-        <img id="public-dicom-img" class="viewer-image" src="" alt="Patient X-Ray" style="max-height: 400px; width: auto; max-width: 100%; transition: transform 0.1s ease;">
+      <!-- रुग्णासाठी एक्स-रे फोटो पाहणे -->
+      <div style="background: #000; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
+        <img id="public-dicom-img" src="" alt="Patient X-Ray" style="max-height: 450px; width: auto; max-width: 100%; border-radius: 5px;">
       </div>
 
-      <!-- DICOM Controls for Patient -->
-      <div class="viewer-controls" style="margin-top: 10px; border-radius: 6px;">
-        <button class="viewer-btn" onclick="adjustPublicZoom(0.25)">🔍 झूम (+)</button>
-        <button class="viewer-btn" onclick="adjustPublicZoom(-0.25)">🔍 आऊट (-)</button>
-        
-        <label style="font-size: 11px;">ब्राईटनेस: 
-          <input type="range" id="pub-bright" class="viewer-slider" min="50" max="180" value="100" oninput="applyPublicFilters()">
-        </label>
-        
-        <label style="font-size: 11px;">काँट्रास्ट: 
-          <input type="range" id="pub-contrast" class="viewer-slider" min="50" max="220" value="100" oninput="applyPublicFilters()">
-        </label>
+      <!-- रुग्णासाठी थेट गॅलरी डाऊनलोड बटण -->
+      <button class="btn-success" style="padding: 14px; font-size: 16px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="downloadCurrentPublicXray()">
+        📥 गॅलरीमध्ये एक्स-रे डाऊनलोड करा (Save to Gallery)
+      </button>
 
-        <button class="viewer-btn" style="background:#f0ad4e; color:black;" onclick="togglePublicInvert()">🔄 Invert</button>
-        <button class="viewer-btn" style="background:#17a2b8;" onclick="resetPublicView()">↺ Reset</button>
-      </div>
-
-      <div id="public-ai-report" class="ai-badge" style="margin-top: 15px;"></div>
+      <div id="public-ai-report" class="ai-badge" style="margin-top: 15px; text-align: left;"></div>
       <div style="text-align: center; margin-top: 15px;">
         <a href="./" style="font-size: 13px; color: #0056b3; font-weight: bold; text-decoration: none;">🏠 मुख्य पोर्टलवर जा</a>
       </div>
@@ -169,7 +154,6 @@
     <div id="admin-section" class="card admin-card hidden no-print">
       <h3 style="color:#003366; margin-top:0;">👑 ॲडमिन कन्ट्रोल व व्यवस्थापन पॅनेल</h3>
       
-      <!-- नवीन डॉक्टर / स्टाफ जोडणे -->
       <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:12px;">
         <h4 style="margin:0 0 8px 0; color:#003366;">➕ नवीन डॉक्टर / स्टाफ ॲड करा:</h4>
         <div class="form-group"><input type="text" id="doc-name" placeholder="नाव (उदा. डॉ. सचिन देशमुख)"></div>
@@ -184,19 +168,16 @@
         <button class="btn-success" onclick="addDoctor()">स्टाफ ॲड करा</button>
       </div>
 
-      <!-- स्टाफ यादी व्यवस्थापन -->
       <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:12px;">
         <h4 style="margin:0 0 8px 0; color:#003366;">👨‍⚕️ नोंदणीकृत डॉक्टर / स्टाफ यादी:</h4>
         <div id="staff-list-container">स्टाफ यादी लोड होत आहे...</div>
       </div>
 
-      <!-- डॉक्टर लॉगिन ॲक्टिव्हिटी लॉग सेक्शन -->
       <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:12px;">
         <h4 style="margin:0 0 8px 0; color:#003366;">📊 डॉक्टर लॉगिन ॲक्टिव्हिटी लॉग (Login Activity):</h4>
         <div id="login-logs-container" style="max-height: 200px; overflow-y: auto;">लॉग लोड होत आहेत...</div>
       </div>
 
-      <!-- बल्क डिलीट टूल्स -->
       <div class="admin-tools">
         <h4>🧹 क्लाऊड स्टोरेज क्लिअरन्स टूल्स (Bulk Cleanup):</h4>
         <div class="tool-buttons">
@@ -222,7 +203,6 @@
           <option value="all">सर्व एक्स-रे (All Records)</option>
         </select>
       </div>
-      <!-- कस्टम तारीख निवडण्यासाठी इनपुट -->
       <div id="custom-date-container" class="hidden" style="width: 100%; margin-top: 5px;">
         <label style="font-size: 11px; font-weight: bold; color: #003366;">निश्चित तारीख निवडा:</label>
         <input type="date" id="selected-custom-date" onchange="filterXrays()" style="padding: 8px; border-radius: 6px; border: 1px solid #ccc; width: 100%;">
@@ -244,7 +224,7 @@
     </div>
   </div>
 
-  <!-- DICOM Viewer Modal -->
+  <!-- DICOM Viewer Modal (फक्त डॉक्टरांसाठी पोर्टलवर) -->
   <div id="dicom-modal" class="viewer-modal">
     <div class="viewer-header">
       <span style="font-weight: bold; font-size: 13px; color: #ffcc00;">🏥 SDH Dhanora - HD Medical DICOM Viewer</span>
@@ -285,12 +265,9 @@
     let isInverted = false;
     let deferredPrompt = null;
     let autoRefreshInterval = null;
-
     let currentPublicImgUrl = '';
-    let publicZoom = 1;
-    let publicInverted = false;
 
-    // PWA Setup & Manifest Generation
+    // Dynamic Manifest Generation
     window.addEventListener('DOMContentLoaded', () => {
       const manifestData = {
         "name": "शासकीय उपजिल्हा रुग्णालय धानोरा",
@@ -311,7 +288,6 @@
       const blob = new Blob([stringManifest], {type: 'application/json'});
       document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
 
-      // Register Service Worker
       if ('serviceWorker' in navigator) {
         const swCode = `
           self.addEventListener('install', e => self.skipWaiting());
@@ -323,7 +299,6 @@
       }
     });
 
-    // PWA Install Prompt Handler
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
       deferredPrompt = e;
@@ -345,7 +320,6 @@
     });
 
     window.onload = function() {
-      // Check if URL has shared parameters for Patient View
       const urlParams = new URLSearchParams(window.location.search);
       const sharedImg = urlParams.get('img');
       if (sharedImg) {
@@ -370,35 +344,6 @@
       `;
       document.getElementById('public-ai-report').innerHTML = `🤖 <strong>AI रिपोर्ट / निष्कर्ष:</strong><br>${decodeURIComponent(ai || 'AI विश्लेषण उपलब्ध नाही.')}`;
       document.getElementById('public-dicom-img').src = imgUrl;
-      resetPublicView();
-    }
-
-    function adjustPublicZoom(amt) {
-      publicZoom = Math.max(0.5, Math.min(3.5, publicZoom + amt));
-      applyPublicFilters();
-    }
-
-    function togglePublicInvert() {
-      publicInverted = !publicInverted;
-      applyPublicFilters();
-    }
-
-    function applyPublicFilters() {
-      const img = document.getElementById('public-dicom-img');
-      const b = document.getElementById('pub-bright').value;
-      const c = document.getElementById('pub-contrast').value;
-      let f = `brightness(${b}%) contrast(${c}%)`;
-      if (publicInverted) f += ` invert(100%)`;
-      img.style.filter = f;
-      img.style.transform = `scale(${publicZoom})`;
-    }
-
-    function resetPublicView() {
-      publicZoom = 1;
-      publicInverted = false;
-      document.getElementById('pub-bright').value = 100;
-      document.getElementById('pub-contrast').value = 100;
-      applyPublicFilters();
     }
 
     async function downloadCurrentPublicXray() {
@@ -442,7 +387,6 @@
         currentUser = data;
         localStorage.setItem('sdh_user', JSON.stringify(data));
         
-        // Log activity to database
         await _supabase.from('login_logs').insert([{
           doctor_name: data.name,
           mobile: data.mobile,
@@ -471,7 +415,6 @@
 
       fetchXrays();
       
-      // Auto-refresh every 5 seconds if active
       if (autoRefreshInterval) clearInterval(autoRefreshInterval);
       autoRefreshInterval = setInterval(fetchXrays, 5000);
     }
@@ -592,7 +535,7 @@
       document.getElementById('xray-list').innerHTML = html || '<p style="text-align:center; color:#777; padding:20px;">एकही X-Ray आढळला नाही.</p>';
     }
 
-    /* DICOM Viewer Controls */
+    /* DICOM Viewer Controls for Doctors */
     function openDicomViewer(imageUrl) {
       document.getElementById('dicom-image').src = imageUrl;
       document.getElementById('dicom-modal').style.display = 'block';
@@ -648,7 +591,7 @@
       const baseUrl = window.location.href.split('?')[0];
       const patientLink = `${baseUrl}?img=${encodeURIComponent(imageUrl)}&name=${encodeURIComponent(patientName)}&id=${encodeURIComponent(patientId)}&ai=${encodedAiReport}`;
 
-      let message = `🏥 *शासकीय उपजिल्हा रुग्णालय, धानोरा*\n\nनमस्ते *${patientName}*,\nआपला डिजिटल X-Ray रिपोर्ट तयार आहे.\n📋 *रुग्ण ID:* ${patientId}\n\n🔗 *खालील लिंकवर क्लिक करून HD DICOM व्ह्यूअरमध्ये एक्स-रे पहा व डाऊनलोड करा:*\n${patientLink}\n\nकाळजी घ्या व डॉक्टरांच्या सल्ल्यानुसार औषधोपचार घ्या!`;
+      let message = `🏥 *शासकीय उपजिल्हा रुग्णालय, धानोरा*\n\nनमस्ते *${patientName}*,\nआपला डिजिटल X-Ray रिपोर्ट तयार आहे.\n📋 *रुग्ण ID:* ${patientId}\n\n🔗 *खालील लिंकवर क्लिक करून तुमचा एक्स-रे गॅलरीमध्ये डाऊनलोड करा:*\n${patientLink}\n\nकाळजी घ्या व डॉक्टरांच्या सल्ल्यानुसार औषधोपचार घ्या!`;
       window.open(`https://wa.me/91${mobile}?text=${encodeURIComponent(message)}`, '_blank');
     }
 
@@ -742,7 +685,6 @@
       fetchXrays();
     }
 
-    /* ॲडमिन डॉक्टर्स / स्टाफ कंट्रोल */
     async function addDoctor() {
       const name = document.getElementById('doc-name').value.trim();
       const mobile = document.getElementById('doc-mobile').value.trim();
@@ -807,7 +749,6 @@
       fetchStaffList();
     }
 
-    /* डॉक्टर लॉगिन ॲक्टिव्हिटी लॉग फेट्च करणे */
     async function fetchLoginLogs() {
       const { data: logs, error } = await _supabase.from('login_logs').select('*').order('login_time', { ascending: false }).limit(25);
       
