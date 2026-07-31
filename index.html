@@ -2,7 +2,7 @@
 <html lang="mr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>उपजिल्हा रुग्णालय धानोरा - Digital Hospital Portal</title>
   
   <!-- PWA Manifest Dynamic Link -->
@@ -78,16 +78,78 @@
     .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 5px; }
     .hidden { display: none !important; }
 
-    /* Interactive DICOM Viewer Modal (Upgraded Pan & Zoom) */
-    .viewer-modal { display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); text-align: center; color: white; }
-    .viewer-header { padding: 10px 15px; background: #002244; display: flex; justify-content: space-between; align-items: center; }
-    .viewer-content-container { overflow: hidden; height: 72vh; display: flex; align-items: center; justify-content: center; background: #050505; position: relative; cursor: grab; user-select: none; touch-action: none; }
+    /* Fully Responsive Screen-Fitting DICOM Viewer Modal */
+    .viewer-modal { 
+      display: none; 
+      position: fixed; 
+      z-index: 99999; 
+      left: 0; 
+      top: 0; 
+      width: 100vw; 
+      height: 100vh; 
+      height: 100dvh; /* Dynamic viewport height for iOS/Android */
+      background-color: #000000; 
+      text-align: center; 
+      color: white; 
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .viewer-modal.active {
+      display: flex !important;
+    }
+    .viewer-header { 
+      padding: 10px 15px; 
+      background: #002244; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      flex-shrink: 0;
+      z-index: 100;
+    }
+    .viewer-content-container { 
+      flex: 1;
+      width: 100%;
+      height: 100%;
+      overflow: hidden; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      background: #000000; 
+      position: relative; 
+      cursor: grab; 
+      user-select: none; 
+      touch-action: none; 
+    }
     .viewer-content-container:active { cursor: grabbing; }
-    .viewer-image { max-width: 92%; max-height: 70vh; transform-origin: center center; }
-    .drag-hint { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.65); color: #ffcc00; padding: 4px 12px; border-radius: 12px; font-size: 11px; pointer-events: none; border: 1px solid rgba(255,204,0,0.3); }
-    .viewer-controls { background: #111; padding: 10px; display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; align-items: center; border-top: 1px solid #333; }
-    .viewer-btn { background: #0275d8; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer; font-weight: bold; }
-    .viewer-slider { width: 85px; vertical-align: middle; }
+    .viewer-image { 
+      max-width: 100%; 
+      max-height: 100%; 
+      object-fit: contain;
+      transform-origin: center center; 
+    }
+    .viewer-controls { 
+      background: #111111; 
+      padding: 8px 10px; 
+      display: flex; 
+      justify-content: center; 
+      gap: 6px; 
+      flex-wrap: wrap; 
+      align-items: center; 
+      border-top: 1px solid #333333; 
+      flex-shrink: 0;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+    }
+    .viewer-btn { 
+      background: #0275d8; 
+      color: white; 
+      border: none; 
+      padding: 7px 12px; 
+      border-radius: 5px; 
+      font-size: 12px; 
+      cursor: pointer; 
+      font-weight: bold; 
+    }
+    .viewer-slider { width: 80px; vertical-align: middle; }
 
     @media print {
       body * { visibility: hidden; }
@@ -226,16 +288,15 @@
     </div>
   </div>
 
-  <!-- Upgraded DICOM Viewer Modal -->
+  <!-- Perfectly Fitted DICOM Viewer Modal -->
   <div id="dicom-modal" class="viewer-modal">
     <div class="viewer-header">
-      <span style="font-weight: bold; font-size: 13px; color: #ffcc00;">🏥 SDH Dhanora - Pro Medical DICOM Viewer</span>
-      <button class="viewer-btn" style="background:#dc3545;" onclick="closeDicomViewer()">❌ बंद करा (Close)</button>
+      <span style="font-weight: bold; font-size: 13px; color: #ffcc00;">🏥 SDH Dhanora - Medical DICOM Viewer</span>
+      <button class="viewer-btn" style="background:#dc3545; padding: 6px 14px; font-size: 13px;" onclick="closeDicomViewer()">❌ बंद करा (Close)</button>
     </div>
 
     <div class="viewer-content-container" id="dicom-container">
       <img id="dicom-image" class="viewer-image" src="" alt="HD Medical X-Ray View">
-      <div class="drag-hint">👆 फोटो धरून जिकडे पाहिजे तिकडे सरकवा (Drag & Move)</div>
     </div>
 
     <div class="viewer-controls">
@@ -532,7 +593,7 @@
 
             <div class="chat-section">
               <h5 style="margin:0 0 6px 0; color:#003366;">💬 डॉक्टरांचे अभिप्राय / चर्चा:</h5>
-              <div class="chat-box">${chatHtml || '<i style="color:#888; font-size:11px;">अजून कोणता अभिप्राय दिलेला नाही.</i>'}</div>
+              <div class="chat-box">${chatHtml || '<i style="color:#888; font-size:11px;">अजून कोणताही अभिप्राय दिलेला नाही.</i>'}</div>
               <div class="chat-input-group no-print">
                 <input type="text" id="input-${xray.id}" placeholder="तुमचे मत / टिप्पणी लिहा...">
                 <button class="btn-success" style="padding:6px 12px; font-size:12px;" onclick="sendOpinion(${xray.id})">पाठवा</button>
@@ -544,16 +605,20 @@
       document.getElementById('xray-list').innerHTML = html || '<p style="text-align:center; color:#777; padding:20px;">एकही X-Ray आढळला नाही.</p>';
     }
 
-    /* Upgraded Pro DICOM Viewer Controls (Pan & Touch Drag Support) */
+    /* Fullscreen Responsive DICOM Viewer Modal Handler */
     function openDicomViewer(imageUrl) {
       document.getElementById('dicom-image').src = imageUrl;
-      document.getElementById('dicom-modal').style.display = 'block';
+      const modal = document.getElementById('dicom-modal');
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Stop background scrolling
       resetDicomView();
       initPanZoomListeners();
     }
 
     function closeDicomViewer() {
-      document.getElementById('dicom-modal').style.display = 'none';
+      const modal = document.getElementById('dicom-modal');
+      modal.classList.remove('active');
+      document.body.style.overflow = 'auto'; // Restore background scrolling
     }
 
     function adjustZoom(amount) {
@@ -631,7 +696,7 @@
       window.addEventListener('mousemove', doDrag);
       window.addEventListener('mouseup', stopDrag);
 
-      // Touch Events for Mobile
+      // Touch Events for Mobile & Tablets
       container.addEventListener('touchstart', startDrag, { passive: false });
       window.addEventListener('touchmove', doDrag, { passive: false });
       window.addEventListener('touchend', stopDrag);
