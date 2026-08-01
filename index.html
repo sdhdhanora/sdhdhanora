@@ -37,6 +37,7 @@
     .btn-whatsapp { background: #25d366; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
     .btn-print { background: #6c757d; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; }
     .btn-download { background: #17a2b8; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-pdf { background: #8e44ad; color: white; border: none; padding: 6px 10px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
     .btn-install { background: #ffc107; color: #000; border: none; padding: 10px 14px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 6px; width: 100%; justify-content: center; }
 
     /* Search and Filter Box */
@@ -78,7 +79,7 @@
     .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 5px; }
     .hidden { display: none !important; }
 
-    /* Fully Responsive Screen-Fitting DICOM Viewer Modal */
+    /* DICOM Viewer Modal */
     .viewer-modal { 
       display: none; 
       position: fixed; 
@@ -87,68 +88,20 @@
       top: 0; 
       width: 100vw; 
       height: 100vh; 
-      height: 100dvh; /* Dynamic viewport height for iOS/Android */
+      height: 100dvh; 
       background-color: #000000; 
       text-align: center; 
       color: white; 
       flex-direction: column;
       overflow: hidden;
     }
-    .viewer-modal.active {
-      display: flex !important;
-    }
-    .viewer-header { 
-      padding: 10px 15px; 
-      background: #002244; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      flex-shrink: 0;
-      z-index: 100;
-    }
-    .viewer-content-container { 
-      flex: 1;
-      width: 100%;
-      height: 100%;
-      overflow: hidden; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center; 
-      background: #000000; 
-      position: relative; 
-      cursor: grab; 
-      user-select: none; 
-      touch-action: none; 
-    }
+    .viewer-modal.active { display: flex !important; }
+    .viewer-header { padding: 10px 15px; background: #002244; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; z-index: 100; }
+    .viewer-content-container { flex: 1; width: 100%; height: 100%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #000000; position: relative; cursor: grab; user-select: none; touch-action: none; }
     .viewer-content-container:active { cursor: grabbing; }
-    .viewer-image { 
-      max-width: 100%; 
-      max-height: 100%; 
-      object-fit: contain;
-      transform-origin: center center; 
-    }
-    .viewer-controls { 
-      background: #111111; 
-      padding: 8px 10px; 
-      display: flex; 
-      justify-content: center; 
-      gap: 6px; 
-      flex-wrap: wrap; 
-      align-items: center; 
-      border-top: 1px solid #333333; 
-      flex-shrink: 0;
-      padding-bottom: max(10px, env(safe-area-inset-bottom));
-    }
-    .viewer-btn { 
-      background: #0275d8; 
-      color: white; 
-      border: none; 
-      padding: 7px 12px; 
-      border-radius: 5px; 
-      font-size: 12px; 
-      cursor: pointer; 
-      font-weight: bold; 
-    }
+    .viewer-image { max-width: 100%; max-height: 100%; object-fit: contain; transform-origin: center center; }
+    .viewer-controls { background: #111111; padding: 8px 10px; display: flex; justify-content: center; gap: 6px; flex-wrap: wrap; align-items: center; border-top: 1px solid #333333; flex-shrink: 0; padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+    .viewer-btn { background: #0275d8; color: white; border: none; padding: 7px 12px; border-radius: 5px; font-size: 12px; cursor: pointer; font-weight: bold; }
     .viewer-slider { width: 80px; vertical-align: middle; }
 
     @media print {
@@ -178,9 +131,9 @@
       📲 ॲप इन्स्टॉल करा
     </button>
 
-    <!-- 🌐 रुग्णासाठी डायरेक्ट गॅलरी डाऊनलोड पेज -->
+    <!-- 🌐 रुग्णासाठी डायरेक्ट गॅलरी/PDF डाऊनलोड पेज -->
     <div id="public-patient-view" class="card hidden" style="border-left: 6px solid #28a745; text-align: center;">
-      <h3 style="margin-top: 0; color: #003366;">📋 रुग्ण डिजिटल एक्स-रे रिपोर्ट</h3>
+      <h3 style="margin-top: 0; color: #003366;">📋 रुग्ण डिजिटल एक्स-रे व मेडिकल रिपोर्ट</h3>
       
       <div id="public-patient-info" class="patient-header-box" style="text-align: left;">माहिती लोड होत आहे...</div>
       
@@ -189,10 +142,16 @@
         <img id="public-dicom-img" src="" alt="Patient X-Ray" style="max-height: 450px; width: auto; max-width: 100%; border-radius: 5px;">
       </div>
 
-      <!-- रुग्णासाठी थेट गॅलरी डाऊनलोड बटण -->
-      <button class="btn-success" style="padding: 14px; font-size: 16px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="downloadCurrentPublicXray()">
-        📥 गॅलरीमध्ये एक्स-रे डाऊनलोड करा (Save to Gallery)
-      </button>
+      <!-- डाऊनलोड बटन्स -->
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button id="public-pdf-btn" class="btn-pdf hidden" style="padding: 14px; font-size: 16px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="downloadPublicPdf()">
+          📄 ऑफिशियल PDF रिपोर्ट डाऊनलोड करा (Download Medical PDF)
+        </button>
+
+        <button class="btn-success" style="padding: 14px; font-size: 16px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;" onclick="downloadCurrentPublicXray()">
+          📥 गॅलरीमध्ये एक्स-रे डाऊनलोड करा (Save Image to Gallery)
+        </button>
+      </div>
 
       <div id="public-ai-report" class="ai-badge" style="margin-top: 15px; text-align: left;"></div>
       <div style="text-align: center; margin-top: 15px;">
@@ -214,7 +173,7 @@
       <button class="btn" onclick="login()">प्रवेश करा (Login)</button>
     </div>
 
-    <!-- २. ॲडमिन कंट्रोल पॅनेल -->
+    <!-- २. ॲडमिन कन्ट्रोल पॅनेल -->
     <div id="admin-section" class="card admin-card hidden no-print">
       <h3 style="color:#003366; margin-top:0;">👑 ॲडमिन कन्ट्रोल व व्यवस्थापन पॅनेल</h3>
       
@@ -238,7 +197,7 @@
       </div>
 
       <div style="background:#fff; padding:12px; border-radius:8px; border:1px solid #e0e0e0; margin-bottom:12px;">
-        <h4 style="margin:0 0 8px 0; color:#003366;">📊 डॉक्टर लॉगिन ॲक्टिव्हिटी लॉग (Login Activity):</h4>
+        <h4 style="margin:0 0 8px 0; color:#003366;">📊 डॉक्टर लॉगिन ॲक्टिव्हिटी लॉग:</h4>
         <div id="login-logs-container" style="max-height: 200px; overflow-y: auto;">लॉग लोड होत आहेत...</div>
       </div>
 
@@ -273,7 +232,7 @@
       </div>
     </div>
 
-    <!-- ४. मल्टी-डिलीट बार (ॲडमिनसाठी) -->
+    <!-- ४. मल्टी-डिलीट बार -->
     <div id="multi-delete-bar" class="card hidden no-print" style="padding:10px; background:#fff3cd; display:flex; justify-content:space-between; align-items:center;">
       <div>
         <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)">
@@ -288,7 +247,7 @@
     </div>
   </div>
 
-  <!-- Perfectly Fitted DICOM Viewer Modal -->
+  <!-- DICOM Viewer Modal -->
   <div id="dicom-modal" class="viewer-modal">
     <div class="viewer-header">
       <span style="font-weight: bold; font-size: 13px; color: #ffcc00;">🏥 SDH Dhanora - Medical DICOM Viewer</span>
@@ -336,6 +295,7 @@
     let deferredPrompt = null;
     let autoRefreshInterval = null;
     let currentPublicImgUrl = '';
+    let currentPublicPdfUrl = '';
 
     // Dynamic Manifest Generation
     window.addEventListener('DOMContentLoaded', () => {
@@ -346,13 +306,11 @@
         "display": "standalone",
         "background_color": "#eef2f5",
         "theme_color": "#003366",
-        "icons": [
-          {
-            "src": "https://cdn-icons-png.flaticon.com/512/3774/3774299.png",
-            "sizes": "512x512",
-            "type": "image/png"
-          }
-        ]
+        "icons": [{
+          "src": "https://cdn-icons-png.flaticon.com/512/3774/3774299.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }]
       };
       const stringManifest = JSON.stringify(manifestData);
       const blob = new Blob([stringManifest], {type: 'application/json'});
@@ -392,8 +350,9 @@
     window.onload = function() {
       const urlParams = new URLSearchParams(window.location.search);
       const sharedImg = urlParams.get('img');
-      if (sharedImg) {
-        loadPublicPatientViewer(sharedImg, urlParams.get('name'), urlParams.get('id'), urlParams.get('ai'));
+      const sharedPdf = urlParams.get('pdf');
+      if (sharedImg || sharedPdf) {
+        loadPublicPatientViewer(sharedImg, sharedPdf, urlParams.get('name'), urlParams.get('id'), urlParams.get('ai'));
         return;
       }
 
@@ -404,8 +363,10 @@
       }
     };
 
-    function loadPublicPatientViewer(imgUrl, name, id, ai) {
-      currentPublicImgUrl = imgUrl;
+    function loadPublicPatientViewer(imgUrl, pdfUrl, name, id, ai) {
+      currentPublicImgUrl = imgUrl || '';
+      currentPublicPdfUrl = pdfUrl || '';
+
       document.getElementById('login-section').classList.add('hidden');
       document.getElementById('public-patient-view').classList.remove('hidden');
       
@@ -413,12 +374,26 @@
         <h4 style="margin:0; color:#003366;">📋 रुग्ण: <strong>${decodeURIComponent(name || 'अज्ञात')}</strong> | ID: ${decodeURIComponent(id || 'N/A')}</h4>
       `;
       document.getElementById('public-ai-report').innerHTML = `🤖 <strong>AI रिपोर्ट / निष्कर्ष:</strong><br>${decodeURIComponent(ai || 'AI विश्लेषण उपलब्ध नाही.')}`;
-      document.getElementById('public-dicom-img').src = imgUrl;
+      
+      if (imgUrl) {
+        document.getElementById('public-dicom-img').src = imgUrl;
+      } else {
+        document.getElementById('public-dicom-img').style.display = 'none';
+      }
+
+      if (currentPublicPdfUrl) {
+        document.getElementById('public-pdf-btn').classList.remove('hidden');
+      }
     }
 
     async function downloadCurrentPublicXray() {
       if (!currentPublicImgUrl) return;
       await downloadImageFile(currentPublicImgUrl, 'SDH_Dhanora_XRay.jpg');
+    }
+
+    function downloadPublicPdf() {
+      if (!currentPublicPdfUrl) return;
+      window.open(currentPublicPdfUrl, '_blank');
     }
 
     async function downloadImageFile(url, filename) {
@@ -562,20 +537,22 @@
         });
 
         const isAdmin = currentUser && currentUser.role === 'admin';
+        const hasPdf = xray.pdf_url && xray.pdf_url !== 'null';
 
         html += `
           <div class="xray-card ${isCritical ? 'critical-card' : ''}" id="card-${xray.id}">
             <div class="action-bar no-print">
               <div>
-                ${isAdmin ? `<input type="checkbox" class="xray-select-box" data-id="${xray.id}" data-url="${xray.image_url}"> ` : ''}
+                ${isAdmin ? `<input type="checkbox" class="xray-select-box" data-id="${xray.id}" data-url="${xray.image_url}" data-pdf="${xray.pdf_url}"> ` : ''}
                 ${isCritical ? '<span class="critical-tag">🚨 विशेष लक्ष देण्याची गरज</span>' : ''}
               </div>
-              <div>
-                <button class="btn-whatsapp" onclick="sendToPatient('${patientName}', '${xray.patient_id}', '${xray.image_url}', '${encodeURIComponent(aiReport)}')">📲 रुग्णाला पाठवा</button>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                ${hasPdf ? `<button class="btn-pdf" onclick="window.open('${xray.pdf_url}', '_blank')">📄 PDF रिपोर्ट</button>` : ''}
+                <button class="btn-whatsapp" onclick="sendToPatient('${patientName}', '${xray.patient_id}', '${xray.image_url}', '${xray.pdf_url || ''}', '${encodeURIComponent(aiReport)}')">📲 रुग्णाला पाठवा</button>
                 <button class="btn-download" onclick="downloadImageFile('${xray.image_url}', 'XRay_${patientName.replace(/\s+/g, '_')}.jpg')">📥 डाऊनलोड</button>
                 <button class="btn-warning" onclick="toggleFlag(${xray.id}, ${isCritical})">${isCritical ? '🚩 अनफ्लॅग' : '🚩 विशेष लक्ष'}</button>
                 <button class="btn-print" onclick="printReport(${xray.id})">🖨️ प्रिंट</button>
-                ${isAdmin ? `<button class="btn-danger" style="margin-left:4px;" onclick="deleteSingleXray('${xray.id}', '${xray.image_url}')">🗑️ डिलीट</button>` : ''}
+                ${isAdmin ? `<button class="btn-danger" style="margin-left:4px;" onclick="deleteSingleXray('${xray.id}', '${xray.image_url}', '${xray.pdf_url}')">🗑️ डिलीट</button>` : ''}
               </div>
             </div>
 
@@ -605,12 +582,12 @@
       document.getElementById('xray-list').innerHTML = html || '<p style="text-align:center; color:#777; padding:20px;">एकही X-Ray आढळला नाही.</p>';
     }
 
-    /* Fullscreen Responsive DICOM Viewer Modal Handler */
+    /* DICOM Viewer Functions */
     function openDicomViewer(imageUrl) {
       document.getElementById('dicom-image').src = imageUrl;
       const modal = document.getElementById('dicom-modal');
       modal.classList.add('active');
-      document.body.style.overflow = 'hidden'; // Stop background scrolling
+      document.body.style.overflow = 'hidden';
       resetDicomView();
       initPanZoomListeners();
     }
@@ -618,7 +595,7 @@
     function closeDicomViewer() {
       const modal = document.getElementById('dicom-modal');
       modal.classList.remove('active');
-      document.body.style.overflow = 'auto'; // Restore background scrolling
+      document.body.style.overflow = 'auto';
     }
 
     function adjustZoom(amount) {
@@ -650,8 +627,7 @@
 
     function resetDicomView() {
       currentZoom = 1;
-      panX = 0;
-      panY = 0;
+      panX = 0; panY = 0;
       rotationAngle = 0;
       isInverted = false;
       document.getElementById('bright-slider').value = 100;
@@ -687,28 +663,19 @@
         applyFilters();
       };
 
-      const stopDrag = () => {
-        isDragging = false;
-      };
+      const stopDrag = () => { isDragging = false; };
 
-      // Mouse Events
       container.addEventListener('mousedown', startDrag);
       window.addEventListener('mousemove', doDrag);
       window.addEventListener('mouseup', stopDrag);
 
-      // Touch Events for Mobile & Tablets
       container.addEventListener('touchstart', startDrag, { passive: false });
       window.addEventListener('touchmove', doDrag, { passive: false });
       window.addEventListener('touchend', stopDrag);
 
-      // Scroll Wheel Zoom
       container.addEventListener('wheel', (e) => {
         e.preventDefault();
-        if (e.deltaY < 0) {
-          adjustZoom(0.15);
-        } else {
-          adjustZoom(-0.15);
-        }
+        adjustZoom(e.deltaY < 0 ? 0.15 : -0.15);
       }, { passive: false });
     }
 
@@ -718,25 +685,28 @@
     }
 
     /* Action Handlers */
-    function sendToPatient(patientName, patientId, imageUrl, encodedAiReport) {
+    function sendToPatient(patientName, patientId, imageUrl, pdfUrl, encodedAiReport) {
       let mobile = prompt("रुग्णाचा १० अंकी मोबाईल नंबर टाका:");
       if (!mobile) return;
       mobile = mobile.trim();
       if (mobile.length !== 10 || isNaN(mobile)) { alert("अचूक १० अंकी मोबाईल नंबर टाका!"); return; }
 
       const baseUrl = window.location.href.split('?')[0];
-      const patientLink = `${baseUrl}?img=${encodeURIComponent(imageUrl)}&name=${encodeURIComponent(patientName)}&id=${encodeURIComponent(patientId)}&ai=${encodedAiReport}`;
+      const patientLink = `${baseUrl}?img=${encodeURIComponent(imageUrl)}&pdf=${encodeURIComponent(pdfUrl || '')}&name=${encodeURIComponent(patientName)}&id=${encodeURIComponent(patientId)}&ai=${encodedAiReport}`;
 
-      let message = `🏥 *शासकीय उपजिल्हा रुग्णालय, धानोरा*\n\nनमस्ते *${patientName}*,\nआपला डिजिटल X-Ray रिपोर्ट तयार आहे.\n📋 *रुग्ण ID:* ${patientId}\n\n🔗 *खालील लिंकवर क्लिक करून तुमचा एक्स-रे गॅलरीमध्ये डाऊनलोड करा:*\n${patientLink}\n\nकाळजी घ्या व डॉक्टरांच्या सल्ल्यानुसार औषधोपचार घ्या!`;
+      let message = `🏥 *शासकीय उपजिल्हा रुग्णालय, धानोरा*\n\nनमस्ते *${patientName}*,\nआपला डिजिटल X-Ray व मेडिकल रिपोर्ट तयार आहे.\n📋 *रुग्ण ID:* ${patientId}\n\n🔗 *खालील लिंकवर क्लिक करून तुमचा एक्स-रे आणि PDF रिपोर्ट डाऊनलोड करा:*\n${patientLink}\n\nकाळजी घ्या व डॉक्टरांच्या सल्ल्यानुसार औषधोपचार घ्या!`;
       window.open(`https://wa.me/91${mobile}?text=${encodeURIComponent(message)}`, '_blank');
     }
 
-    async function deleteSingleXray(id, imageUrl) {
-      if (!confirm("तुम्ही नक्की हा X-Ray क्लाऊडवरून कायमचा डिलीट करू इच्छिता?")) return;
+    async function deleteSingleXray(id, imageUrl, pdfUrl) {
+      if (!confirm("तुम्ही नक्की हा X-Ray आणि PDF क्लाऊडवरून कायमचा डिलीट करू इच्छिता?")) return;
 
-      if (imageUrl) {
-        const fileName = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
-        await _supabase.storage.from('xrays').remove([fileName]);
+      const filesToRemove = [];
+      if (imageUrl) filesToRemove.push(imageUrl.substring(imageUrl.lastIndexOf('/') + 1));
+      if (pdfUrl && pdfUrl !== 'null') filesToRemove.push(pdfUrl.substring(pdfUrl.lastIndexOf('/') + 1));
+
+      if (filesToRemove.length > 0) {
+        await _supabase.storage.from('xrays').remove(filesToRemove);
       }
 
       const { error } = await _supabase.from('xray_records').delete().eq('id', id);
@@ -744,13 +714,13 @@
       if (error) {
         alert("डिलीट करताना त्रुटी आली: " + error.message);
       } else {
-        alert("X-Ray यशस्वीरीत्या डिलीट झाला!");
+        alert("X-Ray आणि PDF यशस्वीरीत्या डिलीट झाले!");
         fetchXrays();
       }
     }
 
     async function deleteOlderThan(days) {
-      if (!confirm(`तुम्ही नक्की मागील ${days} दिवसांपेक्षा जुने सर्व X-Ray क्लाऊड वरून डिलीट करू इच्छिता?`)) return;
+      if (!confirm(`तुम्ही नक्की मागील ${days} दिवसांपेक्षा जुने सर्व X-Ray आणि PDF डिलीट करू इच्छिता?`)) return;
 
       const cutoffDate = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
       const { data: oldRecords } = await _supabase.from('xray_records').select('*').lt('created_at', cutoffDate);
@@ -760,7 +730,12 @@
         return;
       }
 
-      const filesToDelete = oldRecords.map(r => r.image_url ? r.image_url.substring(r.image_url.lastIndexOf('/') + 1) : '');
+      const filesToDelete = [];
+      oldRecords.forEach(r => {
+        if (r.image_url) filesToDelete.push(r.image_url.substring(r.image_url.lastIndexOf('/') + 1));
+        if (r.pdf_url) filesToDelete.push(r.pdf_url.substring(r.pdf_url.lastIndexOf('/') + 1));
+      });
+
       const idsToDelete = oldRecords.map(r => r.id);
 
       if (filesToDelete.length > 0) {
@@ -768,7 +743,7 @@
       }
       await _supabase.from('xray_records').delete().in('id', idsToDelete);
 
-      alert(`${oldRecords.length} जुने X-Ray यशस्वीरीत्या डिलीट झाले!`);
+      alert(`${oldRecords.length} जुने X-Ray व PDF यशस्वीरीत्या डिलीट झाले!`);
       fetchXrays();
     }
 
@@ -780,14 +755,13 @@
       const selected = document.querySelectorAll('.xray-select-box:checked');
       if (selected.length === 0) { alert("कृपया डिलीट करायचे X-Ray सेलेक्ट करा!"); return; }
 
-      if (!confirm(`तुम्ही नक्की ${selected.length} X-Ray डिलीट करू इच्छिता?`)) return;
+      if (!confirm(`तुम्ही नक्की ${selected.length} X-Ray आणि त्यांचे PDF डिलीट करू इच्छिता?`)) return;
 
       const ids = []; const files = [];
       selected.forEach(cb => {
         ids.push(cb.dataset.id);
-        if (cb.dataset.url) {
-          files.push(cb.dataset.url.substring(cb.dataset.url.lastIndexOf('/') + 1));
-        }
+        if (cb.dataset.url) files.push(cb.dataset.url.substring(cb.dataset.url.lastIndexOf('/') + 1));
+        if (cb.dataset.pdf && cb.dataset.pdf !== 'null') files.push(cb.dataset.pdf.substring(cb.dataset.pdf.lastIndexOf('/') + 1));
       });
 
       if (files.length > 0) {
@@ -795,7 +769,7 @@
       }
       await _supabase.from('xray_records').delete().in('id', ids);
 
-      alert("निवडलेले X-Ray यशस्वीरीत्या डिलीट झाले!");
+      alert("निवडलेले X-Ray व PDF यशस्वीरीत्या डिलीट झाले!");
       fetchXrays();
     }
 
@@ -848,18 +822,7 @@
         return;
       }
 
-      let tableHtml = `
-        <table class="doctor-list-table">
-          <thead>
-            <tr>
-              <th>नाव</th>
-              <th>मोबाईल</th>
-              <th>रोल</th>
-              <th>ॲक्शन</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
+      let tableHtml = `<table class="doctor-list-table"><thead><tr><th>नाव</th><th>मोबाईल</th><th>रोल</th><th>ॲक्शन</th></tr></thead><tbody>`;
 
       staff.forEach(s => {
         tableHtml += `
@@ -893,18 +856,7 @@
         return;
       }
 
-      let logTableHtml = `
-        <table class="logs-table">
-          <thead>
-            <tr>
-              <th>डॉक्टरचे नाव</th>
-              <th>मोबाईल</th>
-              <th>रोल</th>
-              <th>लॉगिन वेळ</th>
-            </tr>
-          </thead>
-          <tbody>
-      `;
+      let logTableHtml = `<table class="logs-table"><thead><tr><th>डॉक्टरचे नाव</th><th>मोबाईल</th><th>रोल</th><th>लॉगिन वेळ</th></tr></thead><tbody>`;
 
       logs.forEach(l => {
         const timeFormatted = new Date(l.login_time).toLocaleString('mr-IN');
